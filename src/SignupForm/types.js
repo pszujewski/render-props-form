@@ -1,0 +1,7 @@
+export const UPDATE_EMAIL = "UPDATE_EMAIL";
+
+export const UPDATE_PASSWORD = "UPDATE_PASSWORD";
+
+export const CONFIRM_PASSWORD = "CONFIRM_PASSWORD";
+
+export const SIGNUP_ERROR = "SIGNUP_ERROR";
