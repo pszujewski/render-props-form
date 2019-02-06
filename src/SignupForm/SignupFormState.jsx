@@ -4,7 +4,7 @@ import * as types from "./types";
 
 export default class SignupFormState extends React.Component {
   static propTypes = {
-    render: PropTypes.func
+    children: PropTypes.func
   };
 
   state = {
@@ -40,6 +40,6 @@ export default class SignupFormState extends React.Component {
   }
 
   render() {
-    return this.props.render(this.state, this.reducer);
+    return this.props.children(this.state, this.reducer);
   }
 }
