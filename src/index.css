@@ -8,6 +8,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.has-space {
-  margin-bottom: 1rem;
+.has-error input {
+  border-width: 2px !important;
 }

@@ -5,7 +5,7 @@ export default class App extends Component {
   render() {
     return (
       <div className="App">
-        <div style={{ width: 500, margin: "7rem auto" }}>
+        <div style={{ width: 400, margin: "7rem auto" }}>
           <SignupForm />
         </div>
       </div>

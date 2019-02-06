@@ -15,12 +15,14 @@ export default class SignupFormState extends React.Component {
   };
 
   reducer = action => {
-    switch (action.type) {
-      case types.SIGNUP_ERROR:
-        return this.setState({ error: true });
-      default:
-        const field = this.getFieldNameFromAction(action.type);
-        return this.setState({ [field]: action.payload, error: false });
+    if (action.type === types.SIGNUP_ERROR) {
+      return this.setState({ error: true });
+    }
+
+    const field = this.getFieldNameFromAction(action.type);
+
+    if (field) {
+      this.setState({ [field]: action.payload, error: false });
     }
   };
 
@@ -31,8 +33,9 @@ export default class SignupFormState extends React.Component {
       case types.UPDATE_PASSWORD:
         return "password";
       case types.CONFIRM_PASSWORD:
-      default:
         return "confirmPassword";
+      default:
+        return null;
     }
   }
 
