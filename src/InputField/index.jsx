@@ -5,42 +5,52 @@ import { Form, Input } from "antd";
 
 export default class InputField extends React.Component {
   static propTypes = {
-    inputConfig: PropTypes.object
+    // Required
+    id: PropTypes.string.isRequired,
+    hasError: PropTypes.bool.isRequired,
+    placeholder: PropTypes.string.isRequired,
+    value: PropTypes.any.isRequired,
+    onChange: PropTypes.func.isRequired,
+    // Optional
+    label: PropTypes.string,
+    getPrefix: PropTypes.func,
+    type: PropTypes.string
+  };
+
+  static defaultProps = {
+    hasError: false
   };
 
   getPrefix() {
-    const { inputConfig } = this.props;
-    if (typeof inputConfig.getPrefix === "function") {
-      return inputConfig.getPrefix();
+    const { getPrefix } = this.props;
+    if (typeof getPrefix === "function") {
+      return getPrefix();
     }
     return null;
   }
 
   getInputClassNames() {
-    const { inputConfig } = this.props;
-    if (inputConfig.hasError) {
+    if (this.props.hasError) {
       return "has-error";
     }
   }
 
   render() {
-    const { inputConfig } = this.props;
+    const { id, label, placeholder, value, onChange, hasError } = this.props;
     return (
-      <Form.Item className="custom-input-field" label={inputConfig.label}>
+      <Form.Item className="custom-input-field" label={label}>
         <Input
           autoComplete="off"
-          id={inputConfig.id}
-          type={inputConfig.type ? inputConfig.type : "text"}
-          name={inputConfig.id}
+          id={id}
+          type={this.props.type ? this.props.type : "text"}
+          name={id}
           className={this.getInputClassNames()}
           prefix={this.getPrefix()}
-          placeholder={inputConfig.placeholder}
-          value={inputConfig.value}
-          onChange={inputConfig.onChange}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
         />
-        {inputConfig.hasError && (
-          <ErrorText errorMessage={inputConfig.errorMessage} />
-        )}
+        {hasError && <ErrorText errorMessage={this.props.errorMessage} />}
       </Form.Item>
     );
   }
