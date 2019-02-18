@@ -6,22 +6,23 @@ export default class ErrorText extends React.Component {
     errorMessage: PropTypes.string
   };
 
-  getErrorMessage() {
-    const { errorMessage } = this.props;
-    return errorMessage ? errorMessage : "Required input!";
-  }
-
   render() {
-    const style = {
-      fontStyle: "italic",
-      fontSize: 11
-    };
     return (
       <div className="has-error">
-        <div className="ant-form-explain" style={style}>
+        <div className="ant-form-explain" style={this.getStyle()}>
           {this.getErrorMessage()}
         </div>
       </div>
     );
   }
+
+  getErrorMessage() {
+    const { errorMessage } = this.props;
+    return errorMessage ? errorMessage : "Required input!";
+  }
+
+  getStyle = () => ({
+    fontStyle: "italic",
+    fontSize: 11,
+  });
 }

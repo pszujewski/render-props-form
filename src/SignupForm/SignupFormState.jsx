@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { UPDATE_INPUT_FIELD } from "../InputField/actionTypes";
 import * as types from "./types";
 
 export default class SignupFormState extends React.Component {
@@ -11,35 +12,34 @@ export default class SignupFormState extends React.Component {
     email: "",
     password: "",
     confirmPassword: "",
-    error: false
+    formErrorType: null // string enum; see errorTypes
   };
-
-  reducer = action => {
-    if (action.type === types.SIGNUP_ERROR) {
-      return this.setState({ error: true });
-    }
-
-    const field = this.getFieldNameFromAction(action.type);
-
-    if (field) {
-      this.setState({ [field]: action.payload, error: false });
-    }
-  };
-
-  getFieldNameFromAction(actionType) {
-    switch (actionType) {
-      case types.UPDATE_EMAIL:
-        return "email";
-      case types.UPDATE_PASSWORD:
-        return "password";
-      case types.CONFIRM_PASSWORD:
-        return "confirmPassword";
-      default:
-        return null;
-    }
-  }
 
   render() {
-    return this.props.children(this.state, this.reducer);
+    return this.props.children(this.getSignupStore());
+  }
+
+  getSignupStore = () => ({
+    getState: () => this.state,
+    update: action => this.reducer(action),
+  });
+
+  reducer = action => { 
+    switch (action.type) {
+      case types.SIGNUP_ERROR:
+        return this.setState({ formErrorType: action.payload });
+      case UPDATE_INPUT_FIELD:
+        return this.updateInputField(action);
+      default:
+        break;
+    }
+  };
+
+  updateInputField(action) {
+    const { payload: p } = action;
+    if (p && p.fieldName && typeof p.nextValue === "string") {
+      const field = p.fieldName;
+      this.setState({ [field]: p.nextValue, formErrorType: null });
+    }
   }
 }

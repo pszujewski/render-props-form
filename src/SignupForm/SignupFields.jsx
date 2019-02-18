@@ -1,104 +1,95 @@
 import React from "react";
 import PropTypes from "prop-types";
-import SignupSubmit from "./SignupSubmit";
+
 import InputField from "../InputField";
 import { isEmptySetup } from "../InputField/utils";
-import { Button, Icon } from "antd";
-import * as types from "./types";
 
-const { UPDATE_EMAIL, UPDATE_PASSWORD, CONFIRM_PASSWORD } = types;
+import { Button, Icon } from "antd";
+import * as errorTypes from "./errorTypes";
+
+const { REQUIRE_INPUT, PASSWORDS_MATCH_FAIL, INVALID_EMAIL } = errorTypes;
 
 export default class SignupFields extends React.Component {
   static propTypes = {
-    state: PropTypes.object,
-    reducer: PropTypes.func
+    signupStore: PropTypes.object,
   };
-
-  getEmailInputConfig = (state, reducer) => {
-    return {
-      id: "email",
-      label: "Email",
-      placeholder: "Email address",
-      getPrefix: () => (
-        <Icon type="user" style={{ color: "rgba(0,0,0,.25)" }} />
-      ),
-      value: state.email,
-      onChange: evt => reducer(this.action(UPDATE_EMAIL, evt)),
-      hasError: isEmptySetup(state)("email") && state.error
-    };
-  };
-
-  getPasswordInputConfig = (state, reducer) => {
-    const pwsDoNotMatch = this.passwordsNoMatch();
-    return {
-      id: "password",
-      label: "Password",
-      type: "password",
-      placeholder: "Password",
-      getPrefix: () => (
-        <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
-      ),
-      value: state.password,
-      onChange: evt => reducer(this.action(UPDATE_PASSWORD, evt)),
-      hasError:
-        (isEmptySetup(state)("password") && state.error) || pwsDoNotMatch,
-      errorMessage: this.getPwErrorMessage(pwsDoNotMatch)
-    };
-  };
-
-  getConfirmPWInputConfig = (state, reducer) => {
-    const pwsDoNotMatch = this.passwordsNoMatch();
-    return {
-      id: "confirmPassword",
-      label: "Confirm password",
-      type: "password",
-      placeholder: "Confirm password",
-      getPrefix: () => (
-        <Icon type="lock" style={{ color: "rgba(0,0,0,.25)" }} />
-      ),
-      value: state.confirmPassword,
-      onChange: evt => reducer(this.action(CONFIRM_PASSWORD, evt)),
-      hasError:
-        (isEmptySetup(state)("confirmPassword") && state.error) ||
-        pwsDoNotMatch,
-      errorMessage: this.getPwErrorMessage(pwsDoNotMatch)
-    };
-  };
-
-  passwordsNoMatch() {
-    const { state } = this.props;
-    return state.password !== state.confirmPassword && state.error;
-  }
-
-  getPwErrorMessage(pwsDoNotMatch) {
-    return pwsDoNotMatch ? "Password fields must match!" : "Required!";
-  }
-
-  action = (type, event) => ({
-    type,
-    payload: event.currentTarget.value
-  });
-
-  getButton() {
-    const style = { marginTop: "1rem" };
-    return (
-      <Button block style={style} type="primary" htmlType="submit">
-        Sign up
-      </Button>
-    );
-  }
 
   render() {
-    const { state: s, reducer: r } = this.props;
+    const { signupStore } = this.props;
+    const state = signupStore.getState();
     return (
-      <SignupSubmit state={s} reducer={r}>
-        <React.Fragment>
-          <InputField inputConfig={this.getEmailInputConfig(s, r)} />
-          <InputField inputConfig={this.getPasswordInputConfig(s, r)} />
-          <InputField inputConfig={this.getConfirmPWInputConfig(s, r)} />
-          {this.getButton()}
-        </React.Fragment>
-      </SignupSubmit>
+      <React.Fragment>
+        <InputField
+          id="email"
+          label="Email"
+          placeholder="Email address"
+          value={state.email}
+          update={signupStore.update}
+          hasError={this.emailFieldHasError(state.formErrorType)}
+          getPrefix={this.getIcon("user")}
+          errorMessage="Valid email is required!"
+        />
+        <InputField
+          id="password"
+          label="Password"
+          type="password"
+          placeholder="Password"
+          getPrefix={this.getIcon("lock")}
+          value={state.password}
+          update={signupStore.update}
+          hasError={this.passwordFieldHasError("password")}
+          errorMessage={this.getPasswordFieldErrorMessage(state.formErrorType)}
+        />
+        <InputField
+          id="confirmPassword"
+          label="Confirm password"
+          type="password"
+          placeholder="Confirm password"
+          getPrefix={this.getIcon("lock")}
+          value={state.confirmPassword}
+          update={signupStore.update}
+          hasError={this.passwordFieldHasError("confirmPassword")}
+          errorMessage={this.getPasswordFieldErrorMessage(state.formErrorType)}
+        />
+        <Button
+          block
+          style={{ marginTop: "1rem" }}
+          type="primary"
+          htmlType="submit">
+          Sign up
+        </Button>
+      </React.Fragment>
     );
   }
+
+  emailFieldHasError(formErrorType) {
+    const emailInvalid = this.hasInvalidEmail(formErrorType);
+    const isEmptyField = this.hasEmptyInputError("email")
+    return emailInvalid || isEmptyField;
+  }
+
+  hasInvalidEmail(formErrorType) {
+    return formErrorType === INVALID_EMAIL;
+  }
+
+  hasEmptyInputError(fieldName) {
+    const s = this.props.signupStore.getState();
+    const isEmpty = isEmptySetup(s);
+    return isEmpty(fieldName) && s.formErrorType === REQUIRE_INPUT;
+  }
+
+  passwordFieldHasError(fieldName) {
+    const s = this.props.signupStore.getState();
+    const isEmpty = this.hasEmptyInputError(fieldName);
+    return isEmpty || s.formErrorType === PASSWORDS_MATCH_FAIL;
+  }
+
+  getPasswordFieldErrorMessage(formErrorType) {
+    const noMatchError = formErrorType === PASSWORDS_MATCH_FAIL;
+    return noMatchError ? "Passwords must match!" : "Requires input!";
+  }
+
+  getIcon = name => () => {
+    return <Icon type={name} style={{ color: "rgba(0,0,0,.25)" }} />;
+  };
 }
