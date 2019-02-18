@@ -1,0 +1,7 @@
+export const PASSWORDS_MATCH_FAIL = "PASSWORDS_MATCH_FAIL";
+
+export const REQUIRE_INPUT = "REQUIRE_INPUT";
+
+export const INVALID_EMAIL = "INVALID_EMAIL";
+
+
